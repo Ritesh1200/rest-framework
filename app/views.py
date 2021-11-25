@@ -11,8 +11,8 @@ class BlogList(APIView):  # parent class is generics.ListCreateAPIView it allow 
     # permission_classes = [IsAuthenticated]  # user must be logged in to get data
     # harishbhatt19@gmail.com
     def get(self, request):
-        snippets = Blog.objects.all()
-        serializer = BlogSerializer(snippets, many=True)
+        bolgs = Blog.objects.all()
+        serializer = BlogSerializer(bolgs, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -34,16 +34,16 @@ class BlogDetail(APIView):
             raise status.Http404
   
     def put(self, request, pk):
-        transformer = self.get_object(pk)
-        serializer = BlogSerializer(transformer, data=request.data)
+        blog = self.get_object(pk)
+        serializer = BlogSerializer(blog, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
     def patch(self, request, pk):
-        transformer = self.get_object(pk)
-        serializer = BlogSerializer(transformer , data=request.data , partial=True)
+        blog = self.get_object(pk)
+        serializer = BlogSerializer(blog , data=request.data , partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
