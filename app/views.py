@@ -32,7 +32,12 @@ class BlogDetail(APIView):
             return Blog.objects.get(pk=pk)
         except Blog.DoesNotExist:
             raise status.Http404
-  
+    
+    def get(self, request, pk, format=None):
+        blog = self.get_object(pk)
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data)
+
     def put(self, request, pk):
         blog = self.get_object(pk)
         serializer = BlogSerializer(blog, data=request.data)
