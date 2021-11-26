@@ -9,8 +9,8 @@ from rest_framework import authentication, status
 
 class BlogList(APIView):  # parent class is generics.ListCreateAPIView it allow to get all data and post the data
 
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]  # user must be logged in to get data
+    permission_classes = [IsAuthenticated]  
+
     def get(self, request):
         bolgs = Blog.objects.all()
         serializer = BlogSerializer(bolgs, many=True)
@@ -26,8 +26,7 @@ class BlogList(APIView):  # parent class is generics.ListCreateAPIView it allow 
 
 class BlogDetail(APIView):
 
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]  # user must be logged in to get data
+    permission_classes = [IsAuthenticated] 
     
     def get_object(self, pk):
         # Returns an object instance that should 
