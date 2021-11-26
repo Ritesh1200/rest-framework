@@ -2,14 +2,15 @@ from rest_framework.views import APIView
 from .models import Blog
 from .serializers import BlogSerializer
 from rest_framework.permissions import  IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import authentication, status
 
 
 class BlogList(APIView):  # parent class is generics.ListCreateAPIView it allow to get all data and post the data
 
-    # permission_classes = [IsAuthenticated]  # user must be logged in to get data
-    # harishbhatt19@gmail.com
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # user must be logged in to get data
     def get(self, request):
         bolgs = Blog.objects.all()
         serializer = BlogSerializer(bolgs, many=True)
@@ -25,6 +26,9 @@ class BlogList(APIView):  # parent class is generics.ListCreateAPIView it allow 
 
 class BlogDetail(APIView):
 
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # user must be logged in to get data
+    
     def get_object(self, pk):
         # Returns an object instance that should 
         # be used for detail views.
@@ -54,4 +58,8 @@ class BlogDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+    def delete(self , request , pk):
+        blog = self.get_object(pk)
+        blog.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
