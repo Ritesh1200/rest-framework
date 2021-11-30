@@ -1,19 +1,21 @@
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from rest_framework import response
 from django.contrib.auth.models import auth , User
 from rest_framework.views import APIView
-from .serializers import   UserSerializer , ChangePasswordSerializer 
+from .serializers import   UserSerializer , ChangePasswordSerializer  , ChangepasswordSerializer
 from rest_framework.permissions import  IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
 
 
 
 class Login(APIView):
     def post(self, request, format=None):
-        data = request.data
+        data = self.request.data
 
         username = data.get('username', None)
         password = data.get('password', None)
@@ -41,37 +43,27 @@ class Registration(APIView):
 class LogoutView(APIView):
     # permission_classes = [IsAuthenticated]
 
-    def post(self, request, format=None):
-        try:
-            refresh_token = request.data.get('refresh_token')
-            token_obj = RefreshToken(refresh_token)
-            token_obj.blacklist()
-            return Response(status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, format=None):
+        auth.logout(request)
+        return Response(status=status.HTTP_200_OK)
 
 
 
-class ChangePasswordAPI(generics.GenericAPIView):
+class ChangePasswordView(generics.UpdateAPIView):
+
+    queryset = User.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_object(self , username ):
-        try:
-            return User.objects.get(username = username)
-        except User.DoesNotExist :
-            return None
-    
-    def put(self , request):
-        if request.user.username == request.data.get("username") :
-            user = self.get_object(request.data.get("username"))
-            if not user :
-                return Response({'Not Found' : 'User does not exist'} , status = status.HTTP_400_BAD_REQUEST)
-            user.set_password(request.data.get("new_password"))
-            serializer = self.get_serializer(user , data = request.data , partial = True)
-            if serializer.is_valid():
-                user = serializer.save()
-                return Response({"user": UserSerializer(user).data})
-            return Response(serializer.errors , status = status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"Invalid Username" : "For changing password logged in username should be use."})
+
+# class ChangePasswordView(APIView):
+
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self , request , pk):
+#         user = User.objects.get(pk = pk)
+#         if user is None:
+#             return response(status=status.HTTP_400_BAD_REQUEST)
+#         if user.username != request.user.username:
+#             return response(status=status.HTTP_400_BAD_REQUEST)
+
+#         user.set_password(request.data.get("new_password"))
